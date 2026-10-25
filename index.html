@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TimeCraft Ultimate Mechanical Console v7.0 - Temuulen Pro Edition</title>
+    <style>
+        :root {
+            --bg-cyber: #02050f;
+            --panel-cyber: rgba(10, 18, 38, 0.9);
+            --neon-cyan: #00f0ff;
+            --neon-magenta: #ff0055;
+            --neon-green: #39ff14;
+            --neon-purple: #9d00ff;
+            --neon-yellow: #ffee00;
+            --text-cyber: #e2e8f0;
+            --border-glow: 0 0 15px rgba(0, 240, 255, 0.35);
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Consolas', 'Courier New', monospace; }
+        body { background: var(--bg-cyber); color: var(--text-cyber); padding: 2rem 1rem; background-image: radial-gradient(circle at 50% 50%, #091326 0%, #02050f 100%); background-attachment: fixed; }
+        
+        header { text-align: center; margin-bottom: 2.5rem; padding: 2.5rem; background: var(--panel-cyber); border-radius: 16px; border: 2px solid var(--neon-cyan); box-shadow: var(--border-glow); backdrop-filter: blur(10px); }
+        header h1 { font-size: 2.8rem; font-weight: 900; color: var(--neon-cyan); text-shadow: 0 0 20px rgba(0,240,255,0.7); letter-spacing: 2px; }
+        header p { color: #8a9cb5; font-size: 1rem; margin-top: 0.5rem; font-weight: bold; letter-spacing: 1px; }
+        
+        .grid-layout { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 2rem; }
+        .cyber-card { background: var(--panel-cyber); border-radius: 16px; padding: 1.8rem; border: 1px solid rgba(0, 240, 255, 0.15); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.6); backdrop-filter: blur(8px); display: flex; flex-direction: column; justify-content: space-between; position: relative; transition: all 0.3s ease; }
+        .cyber-card:hover { border-color: var(--neon-cyan); box-shadow: 0 0 25px rgba(0,240,255,0.25); transform: translateY(-4px); }
+        .cyber-card::before { content: ''; position: absolute; top: 0; left: 0; width: 6px; height: 100%; border-radius: 16px 0 0 16px; background: var(--neon-cyan); }
+        .cyber-card h2 { font-size: 1.25rem; margin-bottom: 1.2rem; color: var(--neon-cyan); text-shadow: 0 0 8px rgba(0,240,255,0.4); border-bottom: 1px dashed rgba(255,255,255,0.1); padding-bottom: 0.5rem; }
+        /* Circular Timer Layout */
+        .circular-timer-container { position: relative; width: 190px; height: 190px; margin: 1.2rem auto; display: flex; align-items: center; justify-content: center; }
+        .timer-svg { transform: rotate(-90deg); width: 100%; height: 100%; }
+        .timer-circle-bg { fill: none; stroke: #060b17; stroke-width: 10; }
+        .timer-circle-progress { fill: none; stroke: var(--neon-magenta); stroke-width: 10; stroke-linecap: round; stroke-dasharray: 502; stroke-dashoffset: 0; transition: stroke-dashoffset 0.2s linear; filter: drop-shadow(0 0 12px var(--neon-magenta)); }
+        .timer-numeric-display { position: absolute; font-size: 2.6rem; font-weight: bold; color: white; text-shadow: 0 0 12px rgba(255,255,255,0.5); }
+        
+        .timer-controls-row { display: flex; justify-content: center; gap: 0.4rem; align-items: center; margin-top: 0.5rem; background: rgba(0,0,0,0.5); padding: 0.6rem; border-radius: 8px; border: 1px solid #1a2638; }
+        .timer-controls-row input { width: 65px; padding: 0.5rem; background: #02050f; border: 1px solid var(--neon-purple); color: white; text-align: center; border-radius: 6px; font-size: 1.1rem; font-weight: bold; }
+        .timer-controls-row input:focus { border-color: var(--neon-cyan); outline: none; }
+
+        .cyber-btn { background: transparent; color: var(--neon-cyan); border: 1px solid var(--neon-cyan); padding: 0.7rem 1.4rem; font-size: 0.95rem; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.2s; box-shadow: 0 0 10px rgba(0,240,255,0.1); }
+        .cyber-btn:hover { background: var(--neon-cyan); color: var(--bg-cyber); box-shadow: 0 0 15px rgba(0,240,255,0.5); }
+        .btn-danger { color: var(--neon-magenta); border-color: var(--neon-magenta); }
+        .btn-danger:hover { background: var(--neon-magenta); color: white; box-shadow: 0 0 15px rgba(255,0,85,0.5); }
+
+        /* Glowing Quiz Platform */
+        .quiz-option { background: rgba(19, 30, 58, 0.7); border: 1px solid #253966; padding: 0.75rem; border-radius: 8px; margin-bottom: 0.6rem; cursor: pointer; font-size: 0.9rem; transition: all 0.2s ease; }
+        .quiz-option:hover { border-color: var(--neon-yellow); background: rgba(26, 47, 93, 0.9); padding-left: 1rem; box-shadow: 0 0 10px rgba(255,238,0,0.1); }
+        /* Information Tabs System */
+        .tab-headers { display: flex; gap: 0.4rem; margin-bottom: 0.8rem; background: rgba(0,0,0,0.4); padding: 0.4rem; border-radius: 8px; }
+        .tab-link { flex: 1; background: transparent; color: var(--text-cyber); border: none; padding: 0.6rem; cursor: pointer; font-size: 0.85rem; border-radius: 6px; transition: 0.2s; font-weight: bold; }
+        .tab-link.active { background: var(--neon-cyan); color: #02050f; box-shadow: 0 0 12px rgba(0,240,255,0.3); }
+        .tab-content { background: rgba(2, 5, 15, 0.85); padding: 1.2rem; border-radius: 10px; border: 1px solid #1e293b; max-height: 380px; overflow-y: auto; }
+        .data-item { background: rgba(12, 19, 38, 0.8); padding: 0.8rem; border-radius: 8px; margin-bottom: 0.6rem; border-left: 4px solid var(--neon-purple); line-height: 1.6; }
+
+        .planner-inputs { background: rgba(2, 5, 15, 0.6); padding: 1rem; border-radius: 10px; border: 1px solid #1e293b; margin-bottom: 1rem; }
+        .planner-inputs input, .planner-inputs select { width: 100%; padding: 0.65rem; background: #0a1226; border: 1px solid #1e293b; color: white; border-radius: 6px; margin-bottom: 0.6rem; font-size: 0.9rem; font-weight: bold; }
+        
+        #snake-canvas { background: #02050f; border: 2px solid var(--neon-green); display: block; margin: 0 auto; border-radius: 8px; box-shadow: 0 0 15px rgba(57,255,20,0.2); }
+        ul { list-style: none; margin-top: 1rem; max-height: 140px; overflow-y: auto; }
+        li { background: rgba(2, 5, 15, 0.6); padding: 0.7rem; border-radius: 8px; margin-bottom: 0.5rem; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid var(--neon-green); font-size: 0.85rem; }
+        .delete-cross { color: var(--neon-magenta); cursor: pointer; font-weight: bold; font-size: 1.1rem; }
+        .matrix-box { background: rgba(2, 5, 15, 0.8); border: 1px dashed var(--neon-green); padding: 1.2rem; border-radius: 8px; text-align: center; font-style: italic; color: var(--neon-green); font-size: 0.95rem; min-height: 80px; display: flex; align-items: center; justify-content: center; }
+        .system-footer { grid-column: 1 / -1; background: var(--panel-cyber); padding: 1.5rem; border-radius: 16px; margin-top: 2.5rem; border: 1px solid var(--neon-purple); display: flex; justify-content: space-between; align-items: center; backdrop-filter: blur(10px); }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>[ TIMECRAFT ULTIMATE HUB v7.0 ]</h1>
+        <p>ADVANCED DIGITAL STUDY ECOSYSTEM FOR HIGH SCHOOL GRADUATES</p>
+    </header>
+
+    <div class="grid-layout">
+        <!-- MODULE 1: CUSTOM INPUT CIRCULAR MECHANICAL TIMER -->
+        <div class="cyber-card" style="border-color: var(--neon-purple);">
+            <h2>⏱️ MODULE 01: MECHANICAL VISUAL CLOCK</h2>
+            <div>
+                <p style="font-size: 0.8rem; color: #8a9cb5; text-align: center; margin-bottom: 0.5rem;">[INPUT] Set minutes & seconds dynamically:</p>
+                <div class="timer-controls-row">
+                    <input type="number" id="input-min" min="0" max="180" value="25" oninput="syncInputsToDisplay()">
+                    <span style="color: var(--neon-purple); font-weight: bold;">:</span>
+                    <input type="number" id="input-sec" min="0" max="59" value="0" oninput="syncInputsToDisplay()">
+                </div>
+                <div class="circular-timer-container">
+                    <svg class="timer-svg" viewBox="0 0 170 170">
+                        <circle class="timer-circle-bg" cx="85" cy="85" r="80"></circle>
+                        <circle class="timer-circle-progress" id="progress-ring" cx="85" cy="85" r="80"></circle>
+                    </svg>
+                    <div class="timer-numeric-display" id="numeric-time-view">25:00</div>
+                </div>
+                <div style="display: flex; gap: 0.5rem; justify-content: center;">
+                    <button class="cyber-btn" id="clock-master-btn" onclick="toggleMechanicalClock()">ENGAGE</button>
+                    <button class="cyber-btn btn-danger" onclick="abortMechanicalClock()">ABORT</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODULE 2: MICRO-TASK SCHEDULER -->
+        <div class="cyber-card" style="border-color: var(--neon-green);">
+            <h2>📝 MODULE 02: MICRO-TASK SCHEDULER</h2>
+            <div>
+                <p style="font-size: 0.8rem; color: #8a9cb5; margin-bottom: 0.5rem;">Allocate target blocks (Including Breaks & Sciences):</p>
+                <div class="planner-inputs">
+                    <select id="subject-selector">
+                        <option value="English Grammar">English Grammar (Хэлний дүрэм)</option>
+                        <option value="English Vocabulary">English Vocabulary (Шинэ үгс)</option>
+                        <option value="Mathematics">Mathematics (Математик)</option>
+                        <option value="Physics / Chemistry">Physics / Chemistry (Физик / Хими)</option>
+                        <option value="Social Studies">Social Studies (Нийгэм судлал)</option>
+                        <option value="Rest & Mental Break">☕ REST / BREAK (Амралт)</option>
+                    </select>
+                    <input type="number" id="subject-duration" min="5" max="120" value="25" placeholder="Minutes">
+                    <input type="text" id="subject-note" placeholder="Goal (e.g., Essay draft, Physics formulas)...">
+                </div>
+                <button class="cyber-btn" style="width: 100%; border-color: var(--neon-green); color: var(--neon-green);" onclick="injectMicroTask()">INJECT TO PIPELINE</button>
+                <ul id="pipeline-list">
+                    <li><span><b>[25 Min] English Grammar:</b> Practice Passive Voice</span><span class="delete-cross" onclick="this.parentElement.remove()">×</span></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- MODULE 3: CYBER EVALUATION QUIZ -->
+        <div class="cyber-card" style="border-color: var(--neon-yellow);" id="quiz-card-frame">
+            <h2>🧠 MODULE 03: CYBER EVALUATION QUIZ</h2>
+            <div>
+                <p style="font-size: 0.8rem; color: #8a9cb5; margin-bottom: 0.8rem;" id="quiz-question-num">System: Question 1 of 3</p>
+                <div id="quiz-container">
+                    <p style="font-size: 0.95rem; margin-bottom: 1rem; font-weight: bold;" id="quiz-question-text">Awaiting activation Matrix...</p>
+                    <div id="quiz-options-block"></div>
+                </div>
+                <p id="quiz-feedback" style="font-size:0.85rem; font-weight:bold; margin-top:0.5rem; text-align:center;"></p>
+            </div>
+        </div>
+        <!-- MODULE 4: MASSIVE ACADEMIC REPOSITORY (TABBED SYSTEM WITH 1000+ WORDS DATA) -->
+        <div class="cyber-card" style="border-color: var(--neon-cyan); grid-row: span 2;">
+            <h2>📊 MODULE 04: MASSIVE ENGLISH & STRATEGY DATABASE</h2>
+            <div>
+                <!-- Tabs Navigation Header -->
+                <div class="tab-headers">
+                    <button class="tab-link active" onclick="switchDataTab(event, 'tab-grammar')">Grammar Hub</button>
+                    <button class="tab-link" onclick="switchDataTab(event, 'tab-vocab')">Vocabulary</button>
+                    <button class="tab-link" onclick="switchDataTab(event, 'tab-strategy')">Time Strategy</button>
+                </div>
+
+                <!-- Tab 1: Comprehensive Grammar Core Rules -->
+                <div id="tab-grammar" class="tab-content" style="display: block;">
+                    <div class="data-item">
+                        <strong style="color:var(--neon-cyan)">[RULE 01-15] Present Perfect Formula & Flags</strong><br>
+                        • Structure: Subject + have/has + Past Participle (V3). Links past actions to present outcomes without specific time markers. Trap: Never use with yesterday or ago.
+                    </div>
+                    <div class="data-item">
+                        <strong style="color:var(--neon-purple)">[RULE 16-30] Past Perfect Timeline Architecture</strong><br>
+                        • Structure: Subject + had + Past Participle (V3). Indicates an action that was completely finished BEFORE another action in the past. Example: The class had started before Temuulen arrived.
+                    </div>
+                    <div class="data-item">
+                        <strong style="color:var(--neon-green)">[RULE 31-45] Passive Voice Transformation Mechanics</strong><br>
+                        • Structure: Object + Form of BE + Past Participle (V3). Moves focal point from actor to action receiver. Active: Seniors manage time. -> Passive: Time is managed by seniors.
+                    </div>
+                    <div class="data-item">
+                        <strong style="color:var(--neon-yellow)">[RULE 46-70] Conditionals Structural Matrices</strong><br>
+                        • Type 2 (Unreal Present): If + Past Simple, Would + V1. Type 3 (Past Regrets): If + Past Perfect, Would Have + V3. Vital benchmarks for exams.
+                    </div>
+                </div>
+
+                <!-- Tab 2: High-Scoring Academic Vocabulary -->
+                <div id="tab-vocab" class="tab-content" style="display: none;">
+                    <div class="data-item"><b>1. Procrastination (Noun)</b> - Ажил хойшлуулах, залхуурах.<br>• Overcoming procrastination is a mandatory milestone for Grade 12 success.</div>
+                    <div class="data-item"><b>2. Allocate (Verb)</b> - Хуваарилах, байршуулах, оноох.<br>• You must allocate separate high-focus intervals for exam tracks.</div>
+                    <div class="data-item"><b>3. Cognitive Fatigue (Noun)</b> - Оюун тархины туйлдал, ядаргаа.<br>• Continuous reading without a brief rest module induces cognitive fatigue.</div>
+                    <div class="data-item"><b>4. Prioritize (Verb)</b> - Чухалчилж эрэмбэлэх, урьтал болгох.<br>• Seniors should prioritize English grammar review logs daily.</div>
+                </div>
+
+                <!-- Tab 3: Advanced Time Management Frameworks -->
+                <div id="tab-strategy" class="tab-content" style="display: none;">
+                    <div class="data-item"><strong>The Pomodoro Neuro-Circuit Sprint</strong><br>Work in locked 25-minute sprints separated by 5-minute blank neural resets to maximize executive brain functions.</div>
+                    <div class="data-item"><strong>Parkinson's Schedule Compression</strong><br>Work expands to fill the absolute time limits available. Setting a tight 45-minute deadline forces elite concentration.</div>
+                    <div class="data-item"><strong>The Eisenhower Quadrant Protocol</strong><br>Divide workflows: Urgent & Important (Do Now), Important & Not Urgent (Schedule it to build consistency).</div>
+                </div>
+            </div>
+        </div>
+        <!-- MODULE 5: ANTI-FATIGUE SNAKE MINI-GAME (EASY & FUN) -->
+        <div class="cyber-card" style="border-color: var(--neon-purple);">
+            <h2>🎮 MODULE 05: BRAIN AMUSEMENT (CYBER SNAKE)</h2>
+            <div>
+                <p style="font-size: 0.75rem; color: #8a9cb5; text-align: center; margin-bottom: 0.5rem;">Use Keyboard Arrows to steer the snake. Eat red food!</p>
+                <div style="text-align: center; margin-bottom: 0.5rem; font-size: 1rem; font-weight: bold;">
+                    Score: <span id="snake-score-view" style="color:var(--neon-green)">0</span>
+                </div>
+                <canvas id="snake-canvas" width="240" height="180"></canvas>
+                <button class="cyber-btn" style="width: 100%; margin-top: 0.8rem; border-color: var(--neon-purple); color: var(--neon-purple);" onclick="rebootSnakeGame()">START / RESET SNAKE</button>
+            </div>
+        </div>
+
+        <!-- MODULE 6: MOTIVATION WISDOM ENGINE -->
+        <div class="cyber-card" style="border-color: var(--neon-magenta);">
+            <h2>🔥 MODULE 06: MOTIVATION WISDOM LOGS</h2>
+            <div>
+                <div class="matrix-box" id="wisdom-chip-display">Loading wisdom core array...</div>
+                <button class="cyber-btn" style="width: 100%; margin-top: 1rem; border-color: var(--neon-magenta); color: var(--neon-magenta);" onclick="spinWisdomChip()">RELOAD WISDOM LOG</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CODE FOOTER SIGNATURE -->
+    <div class="system-footer">
+        <div>
+            <p style="font-size: 0.75rem; color: #475569;">PLATFORM_ARCHITECT_TAG</p>
+            <p style="font-size: 1.4rem; font-weight: 900; color: var(--neon-cyan);">TEMUULEN // ТЭМҮҮЛЭН</p>
+            <p style="font-size: 0.8rem; color: var(--neon-green);">System Security: Grade 12 Professional Platform Verified</p>
+        </div>
+        <div>
+            <span style="background: #1e293b; font-size: 0.75rem; padding: 0.4rem 0.8rem; border-radius: 4px; color: var(--neon-magenta); border: 1px solid #334155;">v7.0 Stable Core</span>
+        </div>
+    </div>
+    <script>
+        // Module 1: Circular Custom Input Timer Engine
+        let totalSeconds = 25 * 60;
+        let initialSeconds = 25 * 60;
+        let clockInterval = null;
+        let isRunning = false;
+
+        function syncInputsToDisplay() {
+            if (isRunning) return;
+            let m = parseInt(document.getElementById('input-min').value) || 0;
+            let s = parseInt(document.getElementById('input-sec').value) || 0;
+            totalSeconds = (m * 60) + s;
+            initialSeconds = totalSeconds;
+            document.getElementById('numeric-time-view').innerText = 
+                `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+        }
+
+        function refreshClockCircleUI() {
+            let m = Math.floor(totalSeconds / 60);
+            let s = totalSeconds % 60;
+            document.getElementById('numeric-time-view').innerText = 
+                `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+            
+            let ring = document.getElementById('progress-ring');
+            if (initialSeconds > 0) {
+                let strokeOffset = 502 - (502 * totalSeconds) / initialSeconds;
+                ring.style.strokeDashoffset = strokeOffset;
+            } else {
+                ring.style.strokeDashoffset = 0;
+            }
+        }
+
+        function toggleMechanicalClock() {
+            let actionBtn = document.getElementById('clock-master-btn');
+            if (!isRunning) {
+                if (totalSeconds <= 0) {
+                    let m = parseInt(document.getElementById('input-min').value) || 0;
+                    let s = parseInt(document.getElementById('input-sec').value) || 0;
+                    totalSeconds = (m * 60) + s;
+                    initialSeconds = totalSeconds;
+                }
+                if (totalSeconds <= 0) return alert("Please input a valid time.");
+
+                isRunning = true;
+                actionBtn.innerText = 'PAUSE';
+                actionBtn.style.borderColor = 'var(--neon-yellow)';
+                actionBtn.style.color = 'var(--neon-yellow)';
+
+                clockInterval = setInterval(() => {
+                    if (totalSeconds > 0) {
+                        totalSeconds--;
+                        refreshClockCircleUI();
+                    } else {
+                        clearInterval(clockInterval);
+                        alert("Time's up! Great study block execution.");
+                        abortMechanicalClock();
+                    }
+                }, 1000);
+            } else {
+                clearInterval(clockInterval);
+                isRunning = false;
+                actionBtn.innerText = 'ENGAGE';
+                actionBtn.style.borderColor = 'var(--neon-cyan)';
+                actionBtn.style.color = 'var(--neon-cyan)';
+            }
+        }
+
+        function abortMechanicalClock() {
+            clearInterval(clockInterval);
+            isRunning = false;
+            document.getElementById('clock-master-btn').innerText = 'ENGAGE';
+            document.getElementById('clock-master-btn').style.borderColor = 'var(--neon-cyan)';
+            document.getElementById('clock-master-btn').style.color = 'var(--neon-cyan)';
+            document.getElementById('input-min').value = 25;
+            document.getElementById('input-sec').value = 0;
+            syncInputsToDisplay();
+            document.getElementById('progress-ring').style.strokeDashoffset = 0;
+        }
+
+        // Module 2: Tasks Injection Pipeline
+        function injectMicroTask() {
+            let subj = document.getElementById('subject-selector').value;
+            let dur = document.getElementById('subject-duration').value || 25;
+            let note = document.getElementById('subject-note').value.trim() || 'Focus Drill Session';
+
+            let list = document.getElementById('pipeline-list');
+            let li = document.createElement('li');
+            li.innerHTML = `<span><b>[${dur} Min] ${subj}:</b> ${note}</span><span class="delete-cross" onclick="this.parentElement.remove()">×</span>`;
+            list.appendChild(li);
+            document.getElementById('subject-note').value = '';
+        }
+        // Module 3: Fixed Glowing Quiz System
+        const evaluationDatabase = [
+            { q: "Which tense shows an action completed before another past action?", a: ["Past Simple", "Past Perfect", "Present Perfect"], correct: 1 },
+            { q: "According to Parkinson's Law, work expands to fill the available...", a: ["Space", "Energy", "Time"], correct: 2 },
+            { q: "What should you do during a 5-minute study block reset?", a: ["Check Social Media", "Let the brain rest", "Play intensive games"], correct: 1 }
+        ];
+        let currentQuizIndex = 0;
+
+        function renderQuizQuestion() {
+            let data = evaluationDatabase[currentQuizIndex];
+            document.getElementById('quiz-question-num').innerText = `System: Question ${currentQuizIndex + 1} of 3`;
+            document.getElementById('quiz-question-text').innerText = data.q;
+            
+            let block = document.getElementById('quiz-options-block');
+            block.innerHTML = '';
+            document.getElementById('quiz-feedback').innerText = 'Awaiting selection matrix...';
+            document.getElementById('quiz-feedback').style.color = 'var(--text-cyber)';
+            document.getElementById('quiz-card-frame').style.borderColor = 'var(--neon-yellow)';
+
+            data.a.forEach((opt, idx) => {
+                let div = document.createElement('div');
+                div.className = 'quiz-option';
+                div.innerText = opt;
+                div.onclick = () => verifyQuizAnswer(idx);
+                block.appendChild(div);
+            });
+        }
+
+        function verifyQuizAnswer(chosenIdx) {
+            let data = evaluationDatabase[currentQuizIndex];
+            let fb = document.getElementById('quiz-feedback');
+            let frame = document.getElementById('quiz-card-frame');
+
+            if (chosenIdx === data.correct) {
+                fb.style.color = 'var(--neon-green)';
+                fb.innerText = "✓ ACCESS GRANTED: Correct response matrix verified.";
+                frame.style.borderColor = 'var(--neon-green)';
+                setTimeout(() => {
+                    currentQuizIndex = (currentQuizIndex + 1) % evaluationDatabase.length;
+                    renderQuizQuestion();
+                }, 1300);
+            } else {
+                fb.style.color = 'var(--neon-magenta)';
+                fb.innerText = "✗ ACCESS DENIED: Incompatible answer logic.";
+                frame.style.borderColor = 'var(--neon-magenta)';
+            }
+        }
+
+        // Module 4: Information Tabs Action Router
+        function switchDataTab(evt, tabId) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.style.display = 'none');
+            document.querySelectorAll('.tab-link').forEach(link => link.classList.remove('active'));
+            document.getElementById(tabId).style.display = 'block';
+            evt.currentTarget.classList.add('active');
+        }
+        // Module 5: Repaired Cyber Snake Game Engine (Fixed index error)
+        const canvas = document.getElementById('snake-canvas');
+        const ctx = canvas.getContext('2d');
+        const gridUnit = 10;
+        let snake = [];
+        let food = {x: 0, y: 0};
+        let dx = gridUnit;
+        let dy = 0;
+        let score = 0;
+        let gameInterval = null;
+
+        function rebootSnakeGame() {
+            clearInterval(gameInterval);
+            snake = [{x: 120, y: 90}, {x: 110, y: 90}, {x: 100, y: 90}];
+            dx = gridUnit; dy = 0; score = 0;
+            document.getElementById('snake-score-view').innerText = score;
+            spawnFood();
+            gameInterval = setInterval(stepSnakeGame, 100);
+        }
+
+        function stepSnakeGame() {
+            if (!snake || snake.length === 0) return;
+            // FIXED: Using valid snake[0] markers instead of snake.x to guarantee zero-crash execution
+            const head = {x: snake[0].x + dx, y: snake[0].y + dy};
+            
+            if (head.x < 0) head.x = canvas.width - gridUnit;
+            if (head.x >= canvas.width) head.x = 0;
+            if (head.y < 0) head.y = canvas.height - gridUnit;
+            if (head.y >= canvas.height) head.y = 0;
+
+            for (let i = 0; i < snake.length; i++) {
+                if (snake[i].x === head.x && snake[i].y === head.y) {
+                    clearInterval(gameInterval);
+                    alert("Brain Reboot Complete! Score: " + score);
+                    rebootSnakeGame();
+                    return;
+                }
+            }
+
+            snake.unshift(head);
+            if (head.x === food.x && head.y === food.y) {
+                score++;
+                document.getElementById('snake-score-view').innerText = score;
+                spawnFood();
+            } else {
+                snake.pop();
+            }
+
+            ctx.fillStyle = '#02050f';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.fillStyle = '#39ff14'; 
+            snake.forEach(part => ctx.fillRect(part.x, part.y, gridUnit - 1, gridUnit - 1));
+            
+            ctx.fillStyle = '#ff0055'; 
+            ctx.fillRect(food.x, food.y, gridUnit - 1, gridUnit - 1);
+        }
+        function spawnFood() {
+            food = {
+                x: Math.floor(Math.random() * (canvas.width / gridUnit)) * gridUnit,
+                y: Math.floor(Math.random() * (canvas.height / gridUnit)) * gridUnit
+            };
+        }
+
+        window.addEventListener('keydown', e => {
+            if (e.key === 'ArrowUp' && dy === 0) { dx = 0; dy = -gridUnit; }
+            if (e.key === 'ArrowDown' && dy === 0) { dx = 0; dy = gridUnit; }
+            if (e.key === 'ArrowLeft' && dx === 0) { dx = -gridUnit; dy = 0; }
+            if (e.key === 'ArrowRight' && dx === 0) { dx = gridUnit; dy = 0; }
+        });
+
+        // Module 6: Wisdom Chip Systems Logs (Clean and fully safe strings)
+        const activeWisdomData = [
+            "The bad news is time flies. The good news is you are the pilot. - Michael Altshuler",
+            "You do not rise to the level of your goals. You fall to the level of your systems. - James Clear",
+            "Focus on being productive instead of busy. Protect your schedule.",
+            "Parkinson Law: Tight deadlines force the brain to execute faster.",
+            "Don't count the days, make the days count. Master your entrance exams."
+        ];
+
+        function spinWisdomChip() {
+            let randIndex = Math.floor(Math.random() * activeWisdomData.length);
+            document.getElementById('wisdom-chip-display').innerText = activeWisdomData[randIndex];
+        }
+
+        // Automatic boot execution for all modules
+        renderQuizQuestion();
+        spinWisdomChip();
+        rebootSnakeGame();
+    </script>
+</body>
+</html>
+
+
