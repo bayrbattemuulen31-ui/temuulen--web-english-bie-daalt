@@ -1,2 +1,3 @@
 # temuulen--web-english-bie-daalt
-100 garnaa
+file:///C:/Users/Newtech/Documents/index.html
+
